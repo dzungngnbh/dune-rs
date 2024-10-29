@@ -1,5 +1,5 @@
 use serde::Deserialize;
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::fs;
 
 #[derive(Deserialize, Debug)]
@@ -83,38 +83,37 @@ impl Client {
 
         match request.call() {
             Ok(mut response) => {
-                println!("Response: {:?}", response);
                 // get body
                 let body = response.body_mut().read_to_string().unwrap();
-                let data: ExecutionInfo = serde_json::from_str(&body).unwrap();
-                dbg!(&data);
+                // let data: ExecutionInfo = serde_json::from_str(&body).unwrap();
 
                 // Save data to file
                 self.save(query_id, &body);
+            }
+            Err(e) => panic!("Error: {:?}", e),
+        }
+    }
 
-                // loop through rows
-                for column_name in data.result.metadata.column_names {
-                    let value = data.result.rows[0].get(column_name.clone()).unwrap();
-                    let typ = data.result.metadata.column_types[0].clone();
-                    println!("Column Name: {:?}", column_name);
-                    println!("value: {:?}, type: {:?}", value, typ);
-                    match typ.as_str() {
-                        "double" => {
-                            let value = value.as_f64().unwrap();
-                            println!("True Value: {:?}", value);
-                        }
-                        "string" => {
-                            let value = value.as_str().unwrap();
-                            println!("True Value: {:?}", value);
-                        }
-                        _ => {
-                            println!("Unknown type: {:?}", typ);
-                        }
-                    }
-                }
-                for row in data.result.rows {
-                    println!("Row: {:?}", row);
-                }
+    ///
+    /// Execute query
+    ///
+    pub fn execute(self, query_id: &str) {
+        let url = format!("https://api.dune.com/api/v1/query/{}/execute", query_id);
+        let request = ureq::post(&url)
+            .header("X-Dune-API-Key", self.api_key.clone())
+            .send_json(json!({
+                "query_id": query_id,
+                "api_key": self.api_key.clone(),
+            }));
+
+        match request {
+            Ok(mut response) => {
+                // get body
+                let body = response.body_mut().read_to_string().unwrap();
+                dbg!(&body);
+
+                // Save data to file
+                self.save(query_id, &body);
             }
             Err(e) => panic!("Error: {:?}", e),
         }
@@ -122,37 +121,24 @@ impl Client {
 
     /// Get API key
     pub fn get_api_key() -> Result<String, std::env::VarError> {
+        dotenvy::dotenv().ok();
         std::env::var("DUNE_API_KEY")
     }
 }
 
 #[cfg(test)]
 mod tests {
-    #[ignore]
-    #[test]
-    fn test_get_api_key() {
-        let api_key = super::Client::get_api_key().unwrap();
-    }
-
-    //
-    //     Object {
-    //       "txs": Number(0.07152323),
-    //       "unique_senders_addresses": Number(1.167168),
-    //     },
-    //     ],
-    //     metadata: Metadata {
-    //     column_names: [
-    //     "txs",
-    //     "unique_senders_addresses",
-    //     ],
-    //     column_types: [
-    //     "double",
-    //     "double",
-    //     ],
     #[test]
     fn test_latest_query_result() {
         let api_key = super::Client::get_api_key().unwrap();
-        let client = super::Client::new_with_key(api_key);
+        let client = super::Client::new_with_key(&api_key);
+        client.latest_query_result("3557348");
+    }
+
+    #[test]
+    fn test_execute() {
+        let api_key = super::Client::get_api_key().unwrap();
+        let client = super::Client::new_with_key(&api_key);
         client.latest_query_result("3557348");
     }
 
@@ -161,7 +147,7 @@ mod tests {
         let query = "3557348";
         let results = "latest_query_result";
         let api_key = super::Client::get_api_key().unwrap();
-        let client = super::Client::new_with_key(api_key);
+        let client = super::Client::new_with_key(&api_key);
         client.save(query, results);
     }
 }

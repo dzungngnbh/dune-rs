@@ -1,4 +1,3 @@
-mod client;
 mod dune;
 mod urls;
 
