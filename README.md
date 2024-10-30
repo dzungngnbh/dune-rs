@@ -1,8 +1,9 @@
-# WIP Dune-rs 🏜️
+# Dune-rs 🏜️
 A simple CLI tool to fetch Dune Analytics queries.
 
 ### Goals
 - Simple CLI tool to fetch and execute Dune Analytics queries.
+- Recent results are cached.
 
 ### Workflow
 ```
