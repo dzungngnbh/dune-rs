@@ -1,6 +1,5 @@
-mod dune;
 mod errors;
-mod urls;
+mod dune;
 
 use std::io::Write;
 
@@ -41,7 +40,7 @@ fn respond(line: &str) -> Result<bool, String> {
             let execution_id = sub_matches
                 .get_one::<String>("execution_id")
                 .expect("required");
-            let client = urls::Client::new();
+            let client = dune::Client::new();
             match client.latest_query_result(execution_id) {
                 Ok(body) => {
                     writeln!(std::io::stdout(), "{:?}", body).map_err(|e| e.to_string())?;
