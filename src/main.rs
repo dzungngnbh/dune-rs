@@ -36,7 +36,8 @@ fn respond(line: &str) -> Result<bool, String> {
         .try_get_matches_from(args)
         .map_err(|e| e.to_string())?;
     match matches.subcommand() {
-        Some(("ping", _matches)) => {
+        Some(("query", _matches)) => {
+            dbg!(&matches);
             write!(std::io::stdout(), "Pong").map_err(|e| e.to_string())?;
             std::io::stdout().flush().map_err(|e| e.to_string())?;
         }
@@ -73,8 +74,11 @@ fn cli() -> Command {
         .subcommand_help_heading("APPLETS")
         .help_template(PARSER_TEMPLATE)
         .subcommand(
-            Command::new("ping")
-                .about("Get a response")
+            // query with argument
+            Command::new("query")
+                .about("Query dune execution_id")
+                .arg_required_else_help(true)
+                .arg(clap::Arg::new("execution_id"))
                 .help_template(APPLET_TEMPLATE),
         )
         .subcommand(

@@ -1,8 +1,8 @@
-# Dune-rs
+# WIP Dune-rs 🏜️
 A simple CLI tool to fetch Dune Analytics queries.
 
 ### Goals
-- Fetch Dune Analytics queries from the command line through REPL.
+- Simple CLI tool to fetch and execute Dune Analytics queries.
 
 ### Workflow
 ```
@@ -12,3 +12,8 @@ DUNE_API_KEY=<api-key> duners
 query <query-id>
 execute <query-id> <params>
 ```
+
+### FAQ 
+- How to get Dune API key?
+  1. Go to [Dune Analytics](https://duneanalytics.com/) and sign up.
+  2. Go to [Settings](https://duneanalytics.com/settings) and copy the API key.
