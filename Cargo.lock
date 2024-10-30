@@ -58,6 +58,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.91"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c042108f3ed77fd83760a5fd79b53be043192bb3b9dba91d8c574c0ada7850c8"
+
+[[package]]
 name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -182,6 +188,7 @@ checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 name = "dune-rs"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "clap",
  "dirs",
  "dotenvy",
@@ -189,6 +196,7 @@ dependencies = [
  "serde",
  "serde_json",
  "shlex",
+ "thiserror",
  "ureq",
 ]
 

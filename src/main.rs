@@ -1,4 +1,5 @@
 mod dune;
+mod errors;
 mod urls;
 
 use std::io::Write;
@@ -36,9 +37,20 @@ fn respond(line: &str) -> Result<bool, String> {
         .try_get_matches_from(args)
         .map_err(|e| e.to_string())?;
     match matches.subcommand() {
-        Some(("query", _matches)) => {
-            dbg!(&matches);
-            write!(std::io::stdout(), "Pong").map_err(|e| e.to_string())?;
+        Some(("query", sub_matches)) => {
+            let execution_id = sub_matches
+                .get_one::<String>("execution_id")
+                .expect("required");
+            let client = urls::Client::new();
+            match client.latest_query_result(execution_id) {
+                Ok(body) => {
+                    writeln!(std::io::stdout(), "{:?}", body).map_err(|e| e.to_string())?;
+                }
+                Err(e) => {
+                    writeln!(std::io::stdout(), "Error: {:?}", e).map_err(|e| e.to_string())?;
+                }
+            }
+
             std::io::stdout().flush().map_err(|e| e.to_string())?;
         }
         Some(("quit", _matches)) => {
