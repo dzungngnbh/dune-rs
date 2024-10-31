@@ -83,7 +83,7 @@ impl Client {
     /// Get latest query result
     /// https://docs.dune.com/api-reference/executions/endpoint/get-query-result
     ///
-    pub fn latest_query_result(&self, query_id: &str) -> Result<String> {
+    pub fn latest_query_result(&self, query_id: &str) -> Result<Vec<Value>> {
         let url = format!("https://api.dune.com/api/v1/query/{}/results", query_id);
         let request = ureq::get(&url).header("X-Dune-API-Key", self.api_key.clone());
 
@@ -91,12 +91,12 @@ impl Client {
             Ok(mut response) => {
                 let body = response.body_mut().read_to_string().unwrap();
                 let data: ExecutionInfo = serde_json::from_str(&body).unwrap();
-                // dbg!(&data);
 
                 match data.state.as_str() {
                     "QUERY_STATE_COMPLETED" => {
                         self.save(query_id, &body);
-                        Ok(body)
+                        let rows = data.result.unwrap().rows;
+                        Ok(rows)
                     }
                     _ => bail!(DuneError::Failed),
                 }

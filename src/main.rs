@@ -1,5 +1,5 @@
-mod errors;
 mod dune;
+mod errors;
 
 use std::io::Write;
 
